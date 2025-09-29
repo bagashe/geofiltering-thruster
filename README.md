@@ -1,4 +1,8 @@
-# Thruster
+# GeoFiltering-Thruster
+
+This fork adds IP based GeoFiltering capability to Thruster. 
+
+==> **I'm a golang novice and these changes were made with ample help from Claude. Use it at your own risk.** <==
 
 Thruster is an HTTP/2 proxy for simple production-ready deployments of Rails
 applications. It runs alongside the Puma webserver to provide a few additional
