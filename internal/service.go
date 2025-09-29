@@ -28,6 +28,9 @@ func (s *Service) Run() int {
 		badGatewayPage:           s.config.BadGatewayPage,
 		forwardHeaders:           s.config.ForwardHeaders,
 		logRequests:              s.config.LogRequests,
+		geoIP2Enabled:            s.config.GeoIP2Enabled,
+		allowCountries:           s.config.AllowCountries,
+		blockCountries:           s.config.BlockCountries,
 	}
 
 	handler := NewHandler(handlerOptions)

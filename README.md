@@ -94,8 +94,28 @@ environment variables that you can set.
 | `FORWARD_HEADERS`           | Whether to forward X-Forwarded-* headers from the client. | Disabled when running with TLS; enabled otherwise |
 | `LOG_REQUESTS`              | Log all requests. Set to `0` or `false` to disable request logging | Enabled |
 | `DEBUG`                     | Set to `1` or `true` to enable debug logging. | Disabled |
+| `ALLOW_COUNTRIES`           | Comma-separated list of ISO country codes to allow (e.g., "US,CA,GB"). Requests from other countries will be blocked. Automatically enables GeoIP2. | None |
+| `BLOCK_COUNTRIES`           | Comma-separated list of ISO country codes to block (e.g., "CN,RU"). Requests from these countries will be blocked. Automatically enables GeoIP2. | None |
 
 To prevent naming clashes with your application's own environment variables,
 Thruster's environment variables can optionally be prefixed with `THRUSTER_`.
 For example, `TLS_DOMAIN` can also be written as `THRUSTER_TLS_DOMAIN`. Whenever
 a prefixed variable is set, it will take precedence over the unprefixed version.
+
+## GeoIP2 Integration
+
+Thruster includes optional GeoIP2 support for geographic location detection based on client IP addresses. When enabled, Thruster adds geographic information to request headers that can be accessed by your application.
+
+### Enabling GeoIP2
+
+GeoIP2 functionality is automatically enabled when you configure country filtering (`ALLOW_COUNTRIES` or `BLOCK_COUNTRIES`). The GeoIP2 database file should be placed in one of these common locations:
+   - `./GeoLite2-Country.mmdb`
+   - `./data/GeoLite2-Country.mmdb`
+   - `./storage/GeoLite2-Country.mmdb`
+
+When a request is processed with GeoIP2 enabled, Thruster will add the following header to the request:
+- `X-GeoIP-Country`: ISO country code (e.g., "US", "CA")
+
+Your Rails application can then access this information via `request.headers['X-GeoIP-Country']`.
+
+**Note:** You'll need to obtain a GeoIP2 database file from MaxMind. The free GeoLite2 databases are available at https://dev.maxmind.com/geoip/geolite2-free-geolocation-data.

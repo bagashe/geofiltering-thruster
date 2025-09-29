@@ -35,6 +35,8 @@ const (
 
 	defaultLogLevel    = slog.LevelInfo
 	defaultLogRequests = true
+
+	defaultGeoIP2Enabled = false
 )
 
 type Config struct {
@@ -65,6 +67,10 @@ type Config struct {
 
 	LogLevel    slog.Level
 	LogRequests bool
+
+	GeoIP2Enabled  bool
+	AllowCountries []string
+	BlockCountries []string
 }
 
 func NewConfig() (*Config, error) {
@@ -103,7 +109,18 @@ func NewConfig() (*Config, error) {
 
 		LogLevel:    logLevel,
 		LogRequests: getEnvBool("LOG_REQUESTS", defaultLogRequests),
+
+		AllowCountries: getEnvStrings("ALLOW_COUNTRIES", []string{}),
+		BlockCountries: getEnvStrings("BLOCK_COUNTRIES", []string{}),
 	}
+
+	// Validate that only one of ALLOW_COUNTRIES or BLOCK_COUNTRIES is set
+	if len(config.AllowCountries) > 0 && len(config.BlockCountries) > 0 {
+		return nil, errors.New("only one of ALLOW_COUNTRIES or BLOCK_COUNTRIES can be set, not both")
+	}
+
+	// Auto-enable GeoIP2 if country filtering is configured
+	config.GeoIP2Enabled = len(config.AllowCountries) > 0 || len(config.BlockCountries) > 0
 
 	config.ForwardHeaders = getEnvBool("FORWARD_HEADERS", !config.HasTLS())
 
