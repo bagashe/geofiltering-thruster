@@ -15,9 +15,7 @@ Gem::Specification.new do |s|
     "rubygems_mfa_required" => "true"
   }
 
-  s.platform = "x86_64-linux" # "aarch64-linux"
-
-  s.files = Dir[ "{lib}/**/*", "{exe}/**/*","MIT-LICENSE", "README.md" ]
+  s.files = Dir[ "{lib}/**/*", "MIT-LICENSE", "README.md" ]
   s.bindir = "exe"
   s.executables << "thrust"
 end
