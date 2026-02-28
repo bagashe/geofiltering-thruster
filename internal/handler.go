@@ -5,33 +5,34 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/klauspost/compress/gzhttp"
 	"github.com/oschwald/geoip2-golang"
 )
 
 type HandlerOptions struct {
-	badGatewayPage           string
-	cache                    Cache
-	maxCacheableResponseBody int
-	maxRequestBody           int
-	targetUrl                *url.URL
-	xSendfileEnabled         bool
-	gzipCompressionEnabled   bool
-	forwardHeaders           bool
-	logRequests              bool
-	geoIP2Enabled            bool
-	allowCountries           []string
-	blockCountries           []string
+	badGatewayPage               string
+	cache                        Cache
+	maxCacheableResponseBody     int
+	maxRequestBody               int
+	targetUrl                    *url.URL
+	xSendfileEnabled             bool
+	gzipCompressionEnabled       bool
+	gzipCompressionDisableOnAuth bool
+	gzipCompressionJitter        int
+	forwardHeaders               bool
+	logRequests                  bool
+	geoIP2Enabled                bool
+	allowCountries               []string
+	blockCountries               []string
 }
 
 func NewHandler(options HandlerOptions) http.Handler {
 	handler := NewProxyHandler(options.targetUrl, options.badGatewayPage, options.forwardHeaders)
 	handler = NewCacheHandler(options.cache, options.maxCacheableResponseBody, handler)
 	handler = NewSendfileHandler(options.xSendfileEnabled, handler)
-	handler = NewRequestStartMiddleware(handler)
+	handler = NewRequestStartHandler(handler)
 
 	if options.gzipCompressionEnabled {
-		handler = gzhttp.GzipHandler(handler)
+		handler = NewCompressionHandler(options.gzipCompressionJitter, options.gzipCompressionDisableOnAuth, handler)
 	}
 
 	if options.maxRequestBody > 0 {
@@ -51,7 +52,7 @@ func NewHandler(options HandlerOptions) http.Handler {
 	}
 
 	if options.logRequests {
-		handler = NewLoggingMiddleware(slog.Default(), handler)
+		handler = NewLoggingHandler(slog.Default(), handler)
 	}
 
 	return handler
