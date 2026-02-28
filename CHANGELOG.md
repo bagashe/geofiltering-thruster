@@ -1,3 +1,9 @@
+## v0.1.19 / 2026-02-27
+
+* Add country-based request filtering with GeoIP2
+* Build with Go 1.26
+* Document GeoLite2 license responsibility for proxy users
+
 ## v0.1.18 / 2026-02-02
 
 * Return correct exit code when terminated with signal (#110)
