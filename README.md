@@ -127,6 +127,10 @@ Your Rails application can then access this information via `request.headers['X-
 
 **Note:** You'll need to obtain a GeoIP2 database file from MaxMind. The free GeoLite2 databases are available at https://dev.maxmind.com/geoip/geolite2-free-geolocation-data.
 
+### GeoLite2 Licensing and Attribution
+
+If you use this proxy with GeoLite2 data, you are responsible for complying with the applicable MaxMind GeoLite2 license terms and requirements, including attribution and update/destruction obligations.
+
 ## Security
 
 ### BREACH Mitigation
