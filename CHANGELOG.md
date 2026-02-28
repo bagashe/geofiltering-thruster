@@ -1,3 +1,18 @@
+## v0.1.18 / 2026-02-02
+
+* Return correct exit code when terminated with signal (#110)
+* Build with Go 1.25.6
+
+## v0.1.17 / 2025-12-16
+
+* Mitigate BREACH attacks with random jitter and optional compression guard (#102)
+
+## v0.1.16 / 2025-10-19
+
+* Build with Go 1.25 (#93)
+* Fail with an error if unable to bind to port (#92)
+* Add H2C support behind H2C_ENABLED flag (#89)
+
 ## v0.1.15 / 2025-08-05
 
 * Ensure responses are flushable (preventing issues with SSE) (#87)

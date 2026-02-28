@@ -44,13 +44,13 @@ automatically fetch the appropriate binary for your platform.
 To install it, add it to your application's Gemfile:
 
 ```ruby
-gem 'thruster'
+gem 'geofiltering-thruster'
 ```
 
 Or install it globally:
 
 ```sh
-$ gem install thruster
+$ gem install geofiltering-thruster
 ```
 
 
@@ -82,7 +82,9 @@ environment variables that you can set.
 | `TARGET_PORT`               | The port that your Puma server should run on. Thruster will set `PORT` to this value when starting your server. | 3000 |
 | `CACHE_SIZE`                | The size of the HTTP cache in bytes. | 64MB |
 | `MAX_CACHE_ITEM_SIZE`       | The maximum size of a single item in the HTTP cache in bytes. | 1MB |
-| `GZIP_COMPRESSION_ENABLED`  | Whether to enable gzip compression for static assets. Set to `0` or `false` to disable. | Enabled |
+| `GZIP_COMPRESSION_ENABLED`  | Whether to enable gzip compression for responses. Set to `0` or `false` to disable. | Enabled |
+| `GZIP_COMPRESSION_DISABLE_ON_AUTH` | If set to `true`, disable gzip compression for authenticated requests with `Cookie`, `Authorization`, or `X-Csrf-Token` headers. | `false` |
+| `GZIP_COMPRESSION_JITTER`   | The amount of random jitter (in bytes) to add to the compressed response size to mitigate BREACH attacks. Set to `0` to disable. | 32 |
 | `X_SENDFILE_ENABLED`        | Whether to enable X-Sendfile support. Set to `0` or `false` to disable. | Enabled |
 | `MAX_REQUEST_BODY`          | The maximum size of a request body in bytes. Requests larger than this size will be refused; `0` means no maximum size is enforced. | `0` |
 | `STORAGE_PATH`              | The path to store Thruster's internal state. Provisioned TLS certificates will be stored here, so that they will not need to be requested every time your application is started. | `./storage/thruster` |
@@ -92,6 +94,7 @@ environment variables that you can set.
 | `HTTP_IDLE_TIMEOUT`         | The maximum time in seconds that a client can be idle before the connection is closed. | 60 |
 | `HTTP_READ_TIMEOUT`         | The maximum time in seconds that a client can take to send the request headers and body. | 30 |
 | `HTTP_WRITE_TIMEOUT`        | The maximum time in seconds during which the client must read the response. | 30 |
+| `H2C_ENABLED`               | Set to `1` or `true` to enable h2c (http/2 cleartext) | Disabled |
 | `ACME_DIRECTORY`            | The URL of the ACME directory to use for TLS certificate provisioning. | `https://acme-v02.api.letsencrypt.org/directory` (Let's Encrypt production) |
 | `EAB_KID`                   | The EAB key identifier to use when provisioning TLS certificates, if required. | None |
 | `EAB_HMAC_KEY`              | The Base64-encoded EAB HMAC key to use when provisioning TLS certificates, if required. | None |
@@ -123,3 +126,14 @@ When a request is processed with GeoIP2 enabled, Thruster will add the following
 Your Rails application can then access this information via `request.headers['X-GeoIP-Country']`.
 
 **Note:** You'll need to obtain a GeoIP2 database file from MaxMind. The free GeoLite2 databases are available at https://dev.maxmind.com/geoip/geolite2-free-geolocation-data.
+
+## Security
+
+### BREACH Mitigation
+
+Thruster includes built-in mitigation for the [BREACH attack](https://breachattack.com/), which allows attackers to extract secrets from compressed encrypted traffic.
+
+1.  **Random Jitter (Enabled by Default)**: Thruster adds a random amount of "jitter" (padding) to the size of compressed responses. This makes it significantly harder for attackers to infer the content based on the compressed size. The default jitter is 32 bytes, controlled by `GZIP_COMPRESSION_JITTER`.
+2.  **Compression Guard (Optional)**: For higher security, you can disable compression entirely for authenticated requests (requests containing `Cookie`, `Authorization`, or `X-Csrf-Token` headers) by setting `GZIP_COMPRESSION_DISABLE_ON_AUTH=true`. This eliminates the side-channel entirely for sensitive traffic but may increase bandwidth usage.
+
+By default, Thruster prioritizes performance while providing baseline protection via jitter. Operators with strict security requirements should consider enabling the Compression Guard.

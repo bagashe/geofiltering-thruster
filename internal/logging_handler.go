@@ -9,19 +9,19 @@ import (
 	"time"
 )
 
-type LoggingMiddleware struct {
+type LoggingHandler struct {
 	logger *slog.Logger
 	next   http.Handler
 }
 
-func NewLoggingMiddleware(logger *slog.Logger, next http.Handler) *LoggingMiddleware {
-	return &LoggingMiddleware{
+func NewLoggingHandler(logger *slog.Logger, next http.Handler) *LoggingHandler {
+	return &LoggingHandler{
 		logger: logger,
 		next:   next,
 	}
 }
 
-func (h *LoggingMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *LoggingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	writer := newResponseWriter(w)
 
 	started := time.Now()
@@ -49,7 +49,8 @@ func (h *LoggingMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"remote_addr", remoteAddr,
 		"user_agent", userAgent,
 		"cache", cache,
-		"query", r.URL.RawQuery)
+		"query", r.URL.RawQuery,
+		"proto", r.Proto)
 }
 
 type responseWriter struct {
